@@ -104,21 +104,11 @@ public final class Multimaps {
    *
    * @since 21.0
    */
-  @Beta
   public static <T, K, V, M extends Multimap<K, V>> Collector<T, ?, M> toMultimap(
       java.util.function.Function<? super T, ? extends K> keyFunction,
       java.util.function.Function<? super T, ? extends V> valueFunction,
       java.util.function.Supplier<M> multimapSupplier) {
-    checkNotNull(keyFunction);
-    checkNotNull(valueFunction);
-    checkNotNull(multimapSupplier);
-    return Collector.of(
-        multimapSupplier,
-        (multimap, input) -> multimap.put(keyFunction.apply(input), valueFunction.apply(input)),
-        (multimap1, multimap2) -> {
-          multimap1.putAll(multimap2);
-          return multimap1;
-        });
+    return CollectCollectors.toMultimap(keyFunction, valueFunction, multimapSupplier);
   }
 
   /**
@@ -159,20 +149,7 @@ public final class Multimaps {
       java.util.function.Function<? super T, ? extends K> keyFunction,
       java.util.function.Function<? super T, ? extends Stream<? extends V>> valueFunction,
       java.util.function.Supplier<M> multimapSupplier) {
-    checkNotNull(keyFunction);
-    checkNotNull(valueFunction);
-    checkNotNull(multimapSupplier);
-    return Collector.of(
-        multimapSupplier,
-        (multimap, input) -> {
-          K key = keyFunction.apply(input);
-          Collection<V> valuesForKey = multimap.get(key);
-          valueFunction.apply(input).forEachOrdered(valuesForKey::add);
-        },
-        (multimap1, multimap2) -> {
-          multimap1.putAll(multimap2);
-          return multimap1;
-        });
+    return CollectCollectors.flatteningToMultimap(keyFunction, valueFunction, multimapSupplier);
   }
 
   /**

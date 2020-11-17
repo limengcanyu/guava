@@ -145,11 +145,11 @@ public final class ByteStreams {
     ByteBuffer buf = ByteBuffer.wrap(createBuffer());
     long total = 0;
     while (from.read(buf) != -1) {
-      buf.flip();
+      Java8Compatibility.flip(buf);
       while (buf.hasRemaining()) {
         total += to.write(buf);
       }
-      buf.clear();
+      Java8Compatibility.clear(buf);
     }
     return total;
   }
@@ -167,7 +167,7 @@ public final class ByteStreams {
    */
   private static byte[] toByteArrayInternal(InputStream in, Queue<byte[]> bufs, int totalLen)
       throws IOException {
-    // Starting with an 8k buffer, double the size of each sucessive buffer. Buffers are retained
+    // Starting with an 8k buffer, double the size of each successive buffer. Buffers are retained
     // in a deque so that there's no copying between buffers while reading and so all of the bytes
     // in each new allocated buffer are available for reading from the stream.
     for (int bufSize = BUFFER_SIZE;
